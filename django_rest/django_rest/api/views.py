@@ -8,6 +8,7 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from employee.models import Employee
 from django.http import Http404
+from rest_framework import mixins,generics
 @api_view(['GET','POST'])
 def list_students(request):
     # students = {
@@ -53,38 +54,60 @@ def get_student(request, pk):
         single_student.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class Employees(APIView):
-    def get(self, request):
-        employees = Employee.objects.all()
-        serializer = EmployeeSerializer(employees,many= True)
-        return Response(serializer.data,status=status.HTTP_200_OK)
+# class Employees(APIView):
+#     def get(self, request):
+#         employees = Employee.objects.all()
+#         serializer = EmployeeSerializer(employees,many= True)
+#         return Response(serializer.data,status=status.HTTP_200_OK)
+    
+#     def post(self,request):
+#         serializer = EmployeeSerializer(data = request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data,status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+# class EmployeeDetail(APIView):
+#     def get_object(self,id):
+#         try:
+#             return Employee.objects.get(id = id)
+#         except Employee.DoesNotExist:
+#             raise Http404
+        
+#     def get(self,request,id):
+#         employee = self.get_object(id)
+#         serializer = EmployeeSerializer(employee)
+#         return Response(serializer.data,status=status.HTTP_200_OK)
+    
+#     def put(self,request,id):
+#         employee = Employee.objects.get(id = id)
+#         serializer = EmployeeSerializer(employee,data = request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data,status=status.HTTP_200_OK)
+#         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+#     def delete(self,request,id):
+#         employee = self.get_object(id)
+#         employee.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class Employees(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+    def get(self,request):
+        return self.list(request)
     
     def post(self,request):
-        serializer = EmployeeSerializer(data = request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data,status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-class EmployeeDetail(APIView):
-    def get_object(self,id):
-        try:
-            return Employee.objects.get(id = id)
-        except Employee.DoesNotExist:
-            raise Http404
-        
-    def get(self,request,id):
-        employee = self.get_object(id)
-        serializer = EmployeeSerializer(employee)
-        return Response(serializer.data,status=status.HTTP_200_OK)
+        return self.create(request)
     
-    def put(self,request,id):
-        employee = Employee.objects.get(id = id)
-        serializer = EmployeeSerializer(employee,data = request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data,status=status.HTTP_200_OK)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-    def delete(self,request,id):
-        employee = self.get_object(id)
-        employee.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+class EmployeeDetail(generics.GenericAPIView,mixins.RetrieveModelMixin,mixins.UpdateModelMixin,mixins.DestroyModelMixin):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+    #lookup_field = 'id'  # if you use other than pk
+    def get(self,request,pk):
+        return self.retrieve(request,pk)
+    
+    def put(self,request,pk):
+        return self.update(request,pk)
+    
+    def delete(self,request,pk):
+        return self.destroy(request,pk)

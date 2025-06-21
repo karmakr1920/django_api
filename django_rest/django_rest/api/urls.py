@@ -5,6 +5,6 @@ urlpatterns = [
     path('students/<int:pk>/', views.get_student,name='single_student'),
     
     path('employees/',views.Employees.as_view()),
-    path('employees/<int:id>/',views.EmployeeDetail.as_view())
+    path('employees/<int:pk>/',views.EmployeeDetail.as_view())
     
 ]
