@@ -1,12 +1,13 @@
 # from django.shortcuts import render
 # from django.http import JsonResponse,HttpResponse
 from students.models import students
-from .serializers import StudentSerializer,EmployeeSerializer
+from employee.models import Employee
+from books.models import Book
+from .serializers import StudentSerializer,EmployeeSerializer,BookSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
-from employee.models import Employee
 from django.http import Http404
 from rest_framework import mixins,generics
 @api_view(['GET','POST'])
@@ -111,3 +112,35 @@ class EmployeeDetail(generics.GenericAPIView,mixins.RetrieveModelMixin,mixins.Up
     
     def delete(self,request,pk):
         return self.destroy(request,pk)
+    
+@api_view(['GET','POST'])
+def all_books(request):
+    if request.method == 'GET':
+        book_list = Book.objects.all()
+        serializer = BookSerializer(book_list,many= True)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        serializer = BookSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['GET','PUT','DELETE'])
+def get_update_delete(request,pk):
+    try:
+        single_book = Book.objects.get(pk=pk)
+    except Book.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        serializer = BookSerializer(single_book)
+        return Response(serializer.data)
+    elif request.method == 'PUT':
+        serializer = BookSerializer(single_book,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        single_book.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
