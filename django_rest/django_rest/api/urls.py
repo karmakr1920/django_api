@@ -10,6 +10,10 @@ urlpatterns = [
 
     #books
     path('books/',views.all_books,name = 'all_books'),
-    path('books/<int:pk>/',views.get_update_delete,name = 'single_book')
+    path('books/<int:pk>/',views.get_update_delete,name = 'single_book'),
+
+    #clothes
+    path('clothes/',views.Clothes.as_view(),name='all_clothes'),
+    path('clothes/<int:pk>/',views.ClothDetail.as_view(),name='get_clothes'),
     
 ]

@@ -3,7 +3,8 @@
 from students.models import students
 from employee.models import Employee
 from books.models import Book
-from .serializers import StudentSerializer,EmployeeSerializer,BookSerializer
+from clothes.models import Cloth
+from .serializers import StudentSerializer,EmployeeSerializer,BookSerializer,ClothSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -143,4 +144,42 @@ def get_update_delete(request,pk):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'DELETE':
         single_book.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class Clothes(APIView):
+    
+    def get(self,request):
+        all_clothes = Cloth.objects.all()
+        serializer = ClothSerializer(all_clothes,many= True)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    
+    def post(self,request):
+        serializer = ClothSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+class ClothDetail(APIView):
+    def get_object(self,pk):
+        try:
+            return Cloth.objects.get(pk = pk)
+        except Cloth.DoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    def get(self,request,pk):
+        single_cloth = self.get_object(pk)
+        serializer = ClothSerializer(single_cloth)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    
+    def put(self,request,pk):
+        update_cloth = self.get_object(pk)
+        serializer = ClothSerializer(update_cloth,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self,request,pk):
+        delete_cloth = self.get_object(pk)
+        delete_cloth.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
