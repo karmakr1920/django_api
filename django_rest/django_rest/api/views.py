@@ -262,4 +262,8 @@ class BookViewSet(viewsets.ViewSet):
         book = get_object_or_404(Book,pk =pk)
         book.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class ClothesViewSet(viewsets.ModelViewSet):
+    queryset = Cloth.objects.all()
+    serializer_class = ClothSerializer
 
