@@ -1,4 +1,4 @@
-# from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
 # from django.http import JsonResponse,HttpResponse
 from students.models import students
 from employee.models import Employee
@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from django.http import Http404
-from rest_framework import mixins,generics
+from rest_framework import mixins,generics,viewsets
 @api_view(['GET','POST'])
 def list_students(request):
     # students = {
@@ -233,3 +233,33 @@ class ClothDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Cloth.objects.all()
     serializer_class = ClothSerializer
     lookup_field = 'pk'
+
+class BookViewSet(viewsets.ViewSet):
+    def list(self,request):
+        queryset = Book.objects.all()
+        serializer = BookSerializer(queryset,many=True)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    def create(self,request):
+        serializer = BookSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    def retrieve(self,request,pk= None):
+        book = get_object_or_404(Book,pk =pk)
+        serializer = BookSerializer(book)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    
+    def update(self,request,pk=None):
+        book = get_object_or_404(Book,pk =pk)
+        serializer = BookSerializer(book,data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    def delete(self,request,pk=None):
+        book = get_object_or_404(Book,pk =pk)
+        book.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
