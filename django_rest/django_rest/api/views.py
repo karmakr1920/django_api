@@ -13,6 +13,8 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from django.http import Http404
 from rest_framework import mixins,generics,viewsets
+from .paginations import CustomPagination
+
 @api_view(['GET','POST'])
 def list_students(request):
     # students = {
@@ -272,6 +274,7 @@ class ClothesViewSet(viewsets.ModelViewSet):
 class BlogsView(generics.ListCreateAPIView):
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
+    pagination_class = CustomPagination
 
 class BlogDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Blog.objects.all()
