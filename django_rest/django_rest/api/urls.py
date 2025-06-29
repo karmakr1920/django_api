@@ -21,7 +21,11 @@ urlpatterns = [
     path('',include(router.urls)),
 
     #clothes
-    path('clothes/',views.Clothes.as_view(),name='all_clothes'),
-    path('clothes/<int:pk>/',views.ClothDetail.as_view(),name='get_clothes'),
+    # path('clothes/',views.Clothes.as_view(),name='all_clothes'),
+    # path('clothes/<int:pk>/',views.ClothDetail.as_view(),name='get_clothes'),
+    path('blogs/',views.BlogsView.as_view()),
+    path('blogs/<int:pk>',views.BlogDetailView.as_view()),
+    path('comments/',views.CommentsView.as_view()),
+    path('comments/<int:pk>',views.CommentDetailView.as_view()),
     
 ]
